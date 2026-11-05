@@ -81,7 +81,9 @@ void Data::extend(char* buffer, unsigned long long len){
     if (this->_len + len > this->_capacity){
         this->_capacity = next_power_2(this->_len + len);
         char* new_buffer = new char[_capacity];
-        std::memcpy(new_buffer, *this->buffer.get(), this->_len);
+        if (this->_len > 0){
+            std::memcpy(new_buffer, *this->buffer.get(), this->_len);
+        }
         this->buffer.reset();
         this->buffer = std::make_shared<char*>(new_buffer);
     }

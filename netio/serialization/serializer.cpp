@@ -22,14 +22,6 @@ Serializable::Serializable(){
     // TODO
 }
 
-Serializable* Serializable::get_class(int id){
-    if (!subclasses.count(id)){
-        std::cout << "id: " << id << "\n";
-        throw std::invalid_argument("NetIO: no class with given id was found");
-    }
-    int hash = subclasses[id];
-    
-}
 template <typename T> 
 int Serializable::get_class_id(T* class_ptr){
     int hash_code = get_hash_code(class_ptr);
@@ -64,6 +56,19 @@ ClassInfo Serializable::get_class_info(T* class_ptr){
 }
 
 template <typename T> 
+DeserializeFunction Serializable::get_class_deserializer(T* class_ptr){
+    int hash_code = get_hash_code(class_ptr);
+    if (!class_deserializers.count(hash_code)){
+        throw std::invalid_argument("NetIO: class not registered");
+    }
+    return class_deserializers[hash_code];
+}
+
+std::vector<SerializableVariant> Serializable::getNetIOFields(){
+    return std::vector<SerializableVariant>{};
+}
+
+template <typename T> 
 void Serializable::sync_key(T* class_ptr, std::string key, bool primitive, bool by_id){
     int class_id = hash(key);
     int hash_code = get_hash_code(class_ptr);
@@ -88,10 +93,49 @@ int Serializable::hash(std::string key){
     return hash;
 }
 
+template<typename T>
+VectorSerializableVariant* Serializable::serialize(T* as_class_ptr, bool serialize_by_id){
+    
 
-VectorSerializableVariant Serializable::serialize(Serializable* as_class_ptr, bool serialize_by_id){
-    throw "NotImplementedYet ahh error";
-    return VectorSerializableVariant{std::vector<SerializableVariant>{0}};
+    // TODO
+
+    return new VectorSerializableVariant{std::vector<SerializableVariant>{0}};
+}
+
+VectorSerializableVariant* Serializable::serialize(bool serialize_by_id){
+    if (get_class_info(this).primitive){
+        // primitives are serialized fully, they do not send their id, class id or anything else, they are just serialized fully.
+        return this->primitive_serialize();
+    }
+    if (get_class_info(this).by_id){
+        // note that by_id means that the internal id will be used.
+        return new VectorSerializableVariant{std::vector<SerializableVariant>{class_id, this->get_id()}};
+    }
+    if (serialize_by_id){
+        // this iimplies that this object was already sent to the other side, and this is only for referensing to this object
+        return new VectorSerializableVariant{std::vector<SerializableVariant>{class_id, serializable_object_id}};
+    }
+    VectorSerializableVariant* data = new VectorSerializableVariant();
+    data->children.push_back(class_id);
+    data->children.push_back(serializable_object_id);
+
+    for (SerializableVariant field : this->getNetIOFields()){
+        if (std::holds_alternative<Serializable*>(field)){
+            Serializable* field_ptr = std::get<Serializable*>(field);
+            if (field_ptr == nullptr){
+                throw std::invalid_argument("NetIO: tried to serialize a null pointer to Serializable");
+            }
+            else{
+                VectorSerializableVariant* inner_data = field_ptr->serialize(serialize_by_id);
+                data->children.push_back(std::make_shared<VectorSerializableVariant>(std::move(*inner_data)));
+                delete inner_data;
+            }
+        }
+        else{
+            data->children.push_back(field);
+        }
+    }
+    return data;
 }
 
 template<typename T>

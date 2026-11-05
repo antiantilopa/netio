@@ -8,8 +8,11 @@ std::mutex BaseWriter::writer_lock = std::mutex();
 void BaseWriter::encode(netio::socket conn, Message message){
     std::vector<SerializableVariant> data_vector;
     if (std::holds_alternative<SerializableVariant>(message.data)) {
-        if (std::holds_alternative<Serializable>(std::get<SerializableVariant>(message.data))){
-            data_vector = std::get<Serializable>(std::get<SerializableVariant>(message.data)).serialize().children;
+        if (std::holds_alternative<Serializable*>(std::get<SerializableVariant>(message.data))){
+            Serializable* serializable_ptr = std::get<Serializable*>(std::get<SerializableVariant>(message.data));
+            VectorSerializableVariant* serialized_data = serializable_ptr->serialize();
+            data_vector = serialized_data->children;
+            delete serialized_data;
         }
         else {
             data_vector = std::vector<SerializableVariant>{std::get<SerializableVariant>(message.data)};
@@ -18,7 +21,7 @@ void BaseWriter::encode(netio::socket conn, Message message){
     else{
         data_vector = std::get<std::vector<SerializableVariant>>(message.data);
     }
-    Data serialized_message = Data(32);
+    Data serialized_message = Data(32); // HACK find more optimal size for this, or make it dynamic.
     serialized_message.extend(_int_to_bytes(message.type, 2));
     serialized_message.extend(_string_to_bytes(message.route));
     serialized_message.extend(_object_to_bytes(data_vector));
