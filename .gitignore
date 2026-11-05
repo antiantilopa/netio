@@ -1,0 +1,41 @@
+# Build output
+build/
+out/
+cmake-build-*/
+
+# CMake generated files (if you ever configure in-source by accident)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CMakeUserPresets.json
+CMakePresets.json
+compile_commands.json
+
+# Compiled binaries in your source folders (from the old tasks.json builds)
+src/cppgame/*.exe
+*.obj
+*.o
+*.ilk
+*.exp
+
+# Debug symbols, except the prebuilt GLFW one
+*.pdb
+!src/libraries/lib/*.pdb
+
+# Visual Studio
+.vs/
+*.vcxproj.user
+
+# VS Code: keep shared config, ignore personal stuff
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/settings.json
+.cache/
+
+# OS
+Thumbs.db
+desktop.ini
+
+*deleteme*
+*.exe
