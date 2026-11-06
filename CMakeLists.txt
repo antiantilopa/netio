@@ -21,5 +21,4 @@ target_include_directories(netio PRIVATE ${LIB_DIR}/include)
 
 target_link_libraries(netio PRIVATE
     ws2_32
-    pthread
 )

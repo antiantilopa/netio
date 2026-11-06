@@ -30,8 +30,7 @@ public:
         return 0; // Not used for this example
     }
 };
-
-
+// template void NetIO::Serializable::sync_key<Unit>(Unit* class_ptr, std::string key, bool primitive, bool by_id);
 int main(){
     // float pi = 3.1415f;
     // void* ptr = &pi;
@@ -46,6 +45,7 @@ int main(){
     // std::cout << d2.hex() << "\n";
     // std::printf("%f\n", f);
     NetIO::Serializable::sync_key<Unit>((Unit*)nullptr, "Unit", false, false);
+    std::cout << "Registered class 'Unit' with class_id: " << NetIO::Serializable::get_class_id<Unit>((Unit*)nullptr) << std::endl;
     Unit unit(42, "Hello, World!", 2.718f);
     NetIO::Data serialized_data = NetIO::BaseWriter::_object_to_bytes(unit.serialize()->children);
     std::cout << "Serialized data (hex): " << serialized_data.hex() << std::endl;

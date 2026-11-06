@@ -117,7 +117,7 @@ char Data::get(unsigned long long index){
 const char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
 std::string Data::hex(){
-    char result[this->_len * 2];
+    char result[(const unsigned long long)this->_len * 2];
     for (int i = 0; i < this->_len; i++){
         unsigned char val = *(*((unsigned char**)this->buffer.get()) + i);
         result[2 * i] = HEX[val / 16];

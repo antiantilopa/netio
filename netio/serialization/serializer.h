@@ -92,7 +92,6 @@ public:
     // destructor should be the first thing here, so that typeid works correctly.
     virtual ~Serializable() = default;    
 private:
-    int class_id;
     static std::map<int, int> subclasses; // id to typeid hash_code
     static std::map<int, ClassInfo> class_infos; // typeid hash_code to ClassInfo
     static std::map<int, DeserializeFunction> class_deserializers; // typeid hash_code to deserializer function
@@ -141,4 +140,8 @@ public:
 };
 
 }
+
+#include "serializer.impl"
+
+
 #endif
