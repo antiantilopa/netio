@@ -1,6 +1,5 @@
 #include "../util/socket.h"
 #include "serializer.h"
-#include "serializer.impl"
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -52,7 +51,7 @@ VectorSerializableVariant* Serializable::serialize(bool serialize_by_id){
         // this iimplies that this object was already sent to the other side, and this is only for referensing to this object
         return new VectorSerializableVariant{std::vector<SerializableVariant>{class_id, serializable_object_id}};
     }
-    VectorSerializableVariant* data = new VectorSerializableVariant();
+    VectorSerializableVariant* data = new VectorSerializableVariant(); // TODO do not garbage the heap! please in iterative way do not create a lot of new objects
     data->children.push_back(class_id);
     data->children.push_back(serializable_object_id);
 

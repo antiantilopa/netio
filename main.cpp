@@ -44,7 +44,8 @@ int main(){
     // std::cout << *d2.buffer.get() << *d3.buffer.get() << "\n\n";
     // std::cout << d2.hex() << "\n";
     // std::printf("%f\n", f);
-    NetIO::Serializable::sync_key<Unit>((Unit*)nullptr, "Unit", false, false);
+
+    NetIO::Serializable::sync_key<Unit>((Unit*)nullptr, "unit", false, false);
     std::cout << "Registered class 'Unit' with class_id: " << NetIO::Serializable::get_class_id<Unit>((Unit*)nullptr) << std::endl;
     Unit unit(42, "Hello, World!", 2.718f);
     NetIO::Data serialized_data = NetIO::BaseWriter::_object_to_bytes(unit.serialize()->children);

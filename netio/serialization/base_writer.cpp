@@ -5,6 +5,17 @@ namespace NetIO{
 
 std::mutex BaseWriter::writer_lock = std::mutex();
 
+void setBigEndian(char* buffer, int length){
+    if (length == 1) return;
+    else if (length == 2) *((unsigned short*)buffer) = htons(*((unsigned short*)buffer));
+    else if (length == 4) *((unsigned long*)buffer) = htonl(*((unsigned long*)buffer));
+    else if (length == 8) *((unsigned long long*)buffer) = htonll(*((unsigned long long*)buffer));
+    else{
+        std::cout << "(!!!) meh, I do not want to implement bytes reverser \n";
+        throw std::invalid_argument("creator's laziness ahh error");
+    }
+}
+
 void BaseWriter::encode(netio::socket conn, Message message){
     std::vector<SerializableVariant> data_vector;
     if (std::holds_alternative<SerializableVariant>(message.data)) {
@@ -42,9 +53,7 @@ Data BaseWriter::_string_to_bytes(std::string value){
         exit(1);
     }
     char* bytes = new char[value.size() + 1];
-    for (long long i = 0; i < value.size(); i++) {
-        bytes[i] = value[i];
-    }
+    value.copy(bytes, value.size());
     bytes[value.size()] = '\0';
     return Data{bytes, (unsigned long long)value.size() + 1};
     delete[] bytes;
@@ -57,11 +66,13 @@ Data BaseWriter::_boolean_to_bytes(bool value){
 Data BaseWriter::_float_to_bytes(float value){
     char* bytes = new char[4];
     memcpy(bytes, &value, 4);
+    setBigEndian(bytes, 4);
     return Data{bytes, 4};
 }
 Data BaseWriter::_float_to_bytes(double value){
     char* bytes = new char[8];
     memcpy(bytes, &value, 8);
+    setBigEndian(bytes, 8);
     return Data{bytes, 8};
 }
 Data BaseWriter::_object_to_bytes(std::vector<SerializableVariant> value){

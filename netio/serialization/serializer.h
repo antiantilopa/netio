@@ -141,7 +141,7 @@ public:
 
 }
 
-#include "serializer.impl"
+#include "serializer.impl.h"
 
 
 #endif

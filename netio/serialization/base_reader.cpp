@@ -4,6 +4,17 @@ namespace NetIO{
 
 std::mutex BaseReader::reader_lock = std::mutex();
 
+void fromBigEndian(char* buffer, int length){
+    if (length == 1) return;
+    else if (length == 2) *((unsigned short*)buffer) = ntohs(*((unsigned short*)buffer));
+    else if (length == 4) *((unsigned long*)buffer) = ntohl(*((unsigned long*)buffer));
+    else if (length == 8) *((unsigned long long*)buffer) = ntohll(*((unsigned long long*)buffer));
+    else{
+        std::cout << "(!!!) meh, I do not want to implement bytes reverser \n";
+        throw std::invalid_argument("creator's laziness ahh error");
+    }
+}
+
 Message BaseReader::decode(netio::socket conn){
     int tp = _read_int(conn, 2);
     std::string route = _read_string(conn);
@@ -71,6 +82,7 @@ long long BaseReader::_read_int(netio::socket conn, unsigned int nbytes){
     }
     char* bytes = new char[nbytes] {};
     conn.recv(bytes, nbytes);
+    fromBigEndian(bytes, nbytes);
     long long result = 0;
     memcpy(((char*)&result), bytes, nbytes);
     delete[] bytes;
@@ -80,6 +92,7 @@ float BaseReader::_read_float32(netio::socket conn){
     char* bytes = new char[4] {};
     float result;
     conn.recv(bytes, 4);
+    fromBigEndian(bytes, 4);
     memcpy(&result, bytes, 4);
     delete[] bytes;
     return result;
@@ -88,6 +101,7 @@ double BaseReader::_read_float64(netio::socket conn){
     char* bytes = new char[8] {};
     double result;
     conn.recv(bytes, 8);
+    fromBigEndian(bytes, 8);
     memcpy(&result, bytes, 8);
     delete[] bytes;
     return result;
